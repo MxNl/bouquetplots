@@ -50,5 +50,6 @@ data |>
 # Make gaps explicit
 
 data |>
-  tsibble::as
+  tsibble::as_tsibble(key = well_id, index = date) |>
+  tsibble::fill_gaps()
   diff(1:3, 1)
