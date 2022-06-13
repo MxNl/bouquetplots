@@ -45,6 +45,9 @@ data_prep |>
 
 
 
+# Rose example ------------------------------------------------------------
+
+
 p <- ggplot() +
   coord_equal(1, c(-4, 2), c(-7, 3)) +
   geom_curve(aes(x = -1, y = -7, xend = 0, yend = 0),
