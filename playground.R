@@ -124,28 +124,54 @@ data_prep <- data |>
 #   purrr::chuck("lengths") |>
 #   max()
 
-alpha_factor <- data_prep |>
+max_cum_steps <- data_prep |>
   ungroup() |>
   pull(gwl_trend_cum) |>
   abs() |>
   max()
 
-{data_prep |>
-  mutate(alpha = (sin(pi / 2 / alpha_factor) * gwl_trend_cum)) |>
-  mutate(date_trans = cumsum(abs(cos(alpha))),
-                gwl_trans = cumsum(sin(alpha))) |>
-  ggplot(aes(date_trans, gwl_trans, group = well_id, label = stringr::str_glue("{round(gwl_trans)}\n{round(gwl_trend, 2)}"))) +
-  geom_line() +
-  # geom_text(nudge_y = 10, size = 2, colour = "grey30") +
-  geom_point(aes(colour = increase_check)) +
-  theme_void() +
-  coord_flip()} |> plotly::ggplotly()
-  # facet_wrap(~ well_id, nrow = 1)
+# {data_prep |>
+#   mutate(angle_step = (sin(pi / 2 / max_cum_steps) * gwl_trend_cum)) |>
+#   mutate(date_trans = cumsum(abs(cos(angle_step))),
+#                 gwl_trans = cumsum(sin(angle_step))) |>
+#   ggplot(aes(date_trans, gwl_trans, group = well_id, label = stringr::str_glue("{round(gwl_trans)}\n{round(gwl_trend, 2)}"))) +
+#   geom_line() +
+#   geom_point(aes(colour = increase_check)) +
+#   theme_void() +
+#   coord_flip()} |> plotly::ggplotly()
+
+
+# Versuch 1 ---------------------------------------------------------------
+angle_step <- sin(pi / 2 / max_cum_steps)
 
 data_prep <- data_prep |>
-  mutate(alpha = (sin(pi / 2 / alpha_factor) * gwl_trend_cum)) |>
-  mutate(date_trans = cumsum(abs(cos(alpha))),
-                gwl_trans = cumsum(sin(alpha)))
+  mutate(angle_step = angle_step * gwl_trend_cum) |>
+  mutate(
+    date_trans = cumsum(abs(cos(angle_step))),
+    gwl_trans = cumsum(sin(angle_step))
+    )
+
+
+# Versuch 2 ---------------------------------------------------------------
+angle_step <- sin(pi * 2 / max_cum_steps)
+
+data_prep <- data_prep |>
+  mutate(angle_step = angle_step * gwl_trend_cum) |>
+  mutate(
+    date_trans = cos(angle_step),
+    gwl_trans = sin(angle_step)
+    )
+
+
+# Versuch 3 ---------------------------------------------------------------
+data_prep <-
+  data_prep |>
+  # mutate(alpha = (sin(pi * 2 / alpha_factor) * gwl_trend_cum)) |>
+  mutate(angle_step = (pi * 2 / max_cum_steps) * gwl_trend_cum) |>
+  mutate(
+    date_trans = cumsum(angle_step%%(max_cum_steps)),
+    gwl_trans = cumsum(angle_step)
+    )
 
 data_prep |>
   ggplot(aes(date_trans, gwl_trans, colour = gwl_trans, group = well_id, label = stringr::str_glue("{round(gwl_trans)}\n{round(gwl_trend, 2)}"))) +
@@ -154,11 +180,5 @@ data_prep |>
   scale_colour_viridis_c() +
   # geom_text(nudge_y = 10, size = 2, colour = "grey30") +
   # geom_point() +
-  theme_void() +
-  coord_flip()
-
-data_prep |>
-  ggplot(aes(date_trans, gwl_trans, group = well_id, label = stringr::str_glue("{round(gwl_trans)}\n{round(gwl_trend, 2)}"))) +
-  geom_line(colour = "darkgreen", show.legend = FALSE, lineend = "round") +
   theme_void() +
   coord_flip()
