@@ -1,3 +1,6 @@
+library(dplyr)
+library(ggplot2)
+
 timeseries_test <- tibble(
   trend = c(0, 0, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1),
   gwl_trend_cum = cumsum(trend)

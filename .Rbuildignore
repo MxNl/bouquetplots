@@ -1,2 +1,4 @@
+^renv$
+^renv\.lock$
 ^bouquetplots\.Rproj$
 ^\.Rproj\.user$
